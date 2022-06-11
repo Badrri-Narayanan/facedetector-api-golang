@@ -2,12 +2,15 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"server/model"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
@@ -27,23 +30,34 @@ func main() {
 		c.String(http.StatusOK, fmt.Sprintf("The server is up and running at port %v", port))
 	})
 
-	router.GET("/list_of_users", func(ctx *gin.Context) {
-		result, err := db.Query("SELECT * FROM users;")
+	router.GET("/signin", func(ctx *gin.Context) {
+		body := ctx.Request.Body
+		values, err := ioutil.ReadAll(body)
 		if err != nil {
-			fmt.Println("Error querying users", err)
-			panic("Error querying users table")
+			panic("Unable to read body")
 		}
-		users := []model.User{}
+
+		signIn := model.SignIn{}
+		json.Unmarshal([]byte(values), &signIn)
+
+		query := fmt.Sprintf("SELECT * from login where email = '%v';", signIn.Email)
+
+		result, err := db.Query(query)
+		if err != nil {
+			panic(err)
+		}
+		var loginDbInfo model.Login
 
 		for result.Next() {
-			user := model.User{}
-			result.Scan(&user.Id, &user.Name, &user.Email, &user.Entries, &user.Joined, &user.Age, &user.Pet)
-			users = append(users, user)
+			result.Scan(&loginDbInfo.Id, &loginDbInfo.Hash, &loginDbInfo.Email)
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{
-			"data": users,
-		})
+		err = bcrypt.CompareHashAndPassword([]byte(loginDbInfo.Hash), []byte(signIn.Password))
+		if err != nil {
+			ctx.String(http.StatusOK, "Incorrect Password")
+		} else {
+			ctx.String(http.StatusOK, "Correct Password")
+		}
 	})
 	router.Run(fmt.Sprintf(":%v", port))
 }
