@@ -19,7 +19,7 @@ func main() {
 	}
 
 	router := gin.Default()
-	router.SetTrustedProxies([]string{"http://localhost:3000/", "https://badrri-narayanan.github.io/"})
+	router.SetTrustedProxies([]string{"http://localhost:3000/", "https://badrri-narayanan.github.io/restaurant-menu/"})
 
 	connStr := os.Getenv("DATABASE_URL")
 
