@@ -19,7 +19,7 @@ func main() {
 	}
 
 	router := gin.Default()
-	router.SetTrustedProxies([]string{"http://localhost:3000/"})
+	router.SetTrustedProxies([]string{"http://localhost:3000/", "https://badrri-narayanan.github.io/"})
 
 	connStr := os.Getenv("DATABASE_URL")
 
@@ -40,6 +40,7 @@ func main() {
 
 	router.POST("/signin", func(ctx *gin.Context) { controller.HandleSignIn(ctx, db) })
 	router.POST("/register", func(ctx *gin.Context) { controller.HandleRegister(ctx, db) })
+	router.GET("/restaurant_menu", controller.HandeListOfFoodItemInMenu)
 
 	router.Run(fmt.Sprintf(":%v", port))
 }
