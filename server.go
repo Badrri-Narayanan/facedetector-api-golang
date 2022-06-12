@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
 	"server/controller"
 
 	"github.com/gin-gonic/gin"
@@ -11,11 +12,21 @@ import (
 )
 
 func main() {
-	port := 8000
+	port := os.Getenv("PORT")
+
+	if len(port) == 0 {
+		port = "8000"
+	}
+
 	router := gin.Default()
 	router.SetTrustedProxies([]string{"http://localhost:3000/"})
 
-	connStr := "postgres://badrri:secret123@localhost:5432/test_db?sslmode=disable"
+	connStr := os.Getenv("DATABASE_URL")
+
+	if len(connStr) == 0 {
+		connStr = "postgres://badrri:secret123@localhost:5432/test_db?sslmode=disable"
+	}
+
 	db, err := sql.Open("postgres", connStr)
 
 	if err != nil {
