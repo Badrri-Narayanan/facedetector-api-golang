@@ -7,7 +7,7 @@ import (
 
 func HandleCrossOriginRequest() gin.HandlerFunc {
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"https://badrri-narayanan.github.io/", "http://localhost:3000"},
+		AllowedOrigins: []string{"https://badrri-narayanan.github.io/restaurant_menu", "http://localhost:3000"},
 	})
 	return c
 }
