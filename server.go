@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"server/controller"
+	"server/middleware"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -19,7 +20,7 @@ func main() {
 	}
 
 	router := gin.Default()
-	router.SetTrustedProxies([]string{"http://localhost:3000/", "https://badrri-narayanan.github.io/"})
+	router.Use(middleware.HandleCrossOriginRequest())
 
 	connStr := os.Getenv("DATABASE_URL")
 
